@@ -73,24 +73,24 @@ type Reservation struct {
 type OrderStatus string
 
 const (
-	OrderPending    OrderStatus = "pending"
-	OrderPreparing  OrderStatus = "preparing"
-	OrderReady      OrderStatus = "ready"
-	OrderDelivered  OrderStatus = "delivered"
-	OrderCancelled  OrderStatus = "cancelled"
+	OrderPending   OrderStatus = "pending"
+	OrderPreparing OrderStatus = "preparing"
+	OrderReady     OrderStatus = "ready"
+	OrderDelivered OrderStatus = "delivered"
+	OrderCancelled OrderStatus = "cancelled"
 )
 
 type Order struct {
 	gorm.Model
-	CustomerID    uint        `json:"customer_id"`
-	Customer      User        `gorm:"foreignKey:CustomerID" json:"customer"`
-	Items         []OrderItem `gorm:"foreignKey:OrderID" json:"items"`
-	TotalAmount   float64     `json:"total_amount"`
-	Status        OrderStatus `gorm:"default:pending" json:"status"`
-	Note          string      `json:"note"`
-	TableNumber   string      `json:"table_number"`
-	HandledBy     *uint       `json:"handled_by"`
-	Staff         *User       `gorm:"foreignKey:HandledBy" json:"staff,omitempty"`
+	CustomerID  uint        `json:"customer_id"`
+	Customer    User        `gorm:"foreignKey:CustomerID" json:"customer"`
+	Items       []OrderItem `gorm:"foreignKey:OrderID" json:"items"`
+	TotalAmount float64     `json:"total_amount"`
+	Status      OrderStatus `gorm:"default:pending" json:"status"`
+	Note        string      `json:"note"`
+	TableNumber string      `json:"table_number"`
+	HandledBy   *uint       `json:"handled_by"`
+	Staff       *User       `gorm:"foreignKey:HandledBy" json:"staff,omitempty"`
 }
 
 type OrderItem struct {
@@ -113,11 +113,11 @@ const (
 
 type Gallery struct {
 	gorm.Model
-	Title      string          `json:"title"`
-	ImageURL   string          `gorm:"not null" json:"image_url"`
-	Category   GalleryCategory `gorm:"default:food" json:"category"`
-	Featured   bool            `gorm:"default:false" json:"featured"`
-	SortOrder  int             `gorm:"default:0" json:"sort_order"`
+	Title     string          `json:"title"`
+	ImageURL  string          `gorm:"not null" json:"image_url"`
+	Category  GalleryCategory `gorm:"default:food" json:"category"`
+	Featured  bool            `gorm:"default:false" json:"featured"`
+	SortOrder int             `gorm:"default:0" json:"sort_order"`
 }
 
 type Review struct {
@@ -132,6 +132,6 @@ type Review struct {
 
 type Setting struct {
 	gorm.Model
-	Key   string `gorm:"uniqueIndex;not null" json:"key"`
+	Key   string `gorm:"type:varchar(191);uniqueIndex;not null" json:"key"`
 	Value string `json:"value"`
 }
