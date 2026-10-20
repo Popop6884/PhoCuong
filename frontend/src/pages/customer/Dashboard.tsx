@@ -38,7 +38,7 @@ export default function CustomerDashboard() {
   const recentOrders = (orders || []).slice(0, 3)
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-10">
+    <div className="max-w-5xl mx-auto px-4 pt-24 pb-12">
       {/* Welcome */}
       <div className="card p-6 mb-8 flex items-center gap-4">
         <div className="w-14 h-14 bg-brand-red rounded-full flex items-center justify-center text-2xl font-bold text-white font-serif">

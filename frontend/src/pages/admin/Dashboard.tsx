@@ -38,7 +38,7 @@ export default function AdminDashboard() {
   ]
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-10">
+    <div className="max-w-6xl mx-auto px-4 pt-24 pb-12">
       <div className="mb-8">
         <h1 className="font-serif text-brand-gold text-3xl font-bold">Trang Quản Trị</h1>
         <p className="text-brand-cream/50 text-sm mt-1">Phở Cường — Quản lý toàn bộ hoạt động nhà hàng</p>
