@@ -41,7 +41,7 @@ export default function StaffDashboard() {
   })
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-10">
+    <div className="max-w-6xl mx-auto px-4 pt-24 pb-12">
       <div className="flex items-center gap-3 mb-8">
         <ChefHat className="text-brand-gold" size={28} />
         <div>

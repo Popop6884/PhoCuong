@@ -166,12 +166,18 @@ func seedData() {
 	config.DB.Create(&menuItems)
 
 	galleries := []models.Gallery{
-		{Title: "Không gian nhà hàng", ImageURL: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=800", Category: models.GalleryRestaurant, Featured: true, SortOrder: 1},
-		{Title: "Phở Bò Tái đặc trưng", ImageURL: "https://images.unsplash.com/photo-1555126634-323283e090fa?w=800", Category: models.GalleryFood, Featured: true, SortOrder: 2},
-		{Title: "Bếp mở hiện đại", ImageURL: "https://images.unsplash.com/photo-1565557623262-b51c2513a641?w=800", Category: models.GalleryRestaurant, Featured: false, SortOrder: 3},
-		{Title: "Tô phở đặc biệt", ImageURL: "https://images.unsplash.com/photo-1569050467447-ce54b3bbc37d?w=800", Category: models.GalleryFood, Featured: true, SortOrder: 4},
-		{Title: "Sự kiện khai trương", ImageURL: "https://images.unsplash.com/photo-1519671482749-fd09be7ccebf?w=800", Category: models.GalleryEvent, Featured: false, SortOrder: 5},
-		{Title: "Góc chụp ảnh", ImageURL: "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=800", Category: models.GalleryRestaurant, Featured: false, SortOrder: 6},
+		{
+			Title:     "Không gian nhà hàng",
+			ImageURL:  "/images/gallery/khong-gian-nha-hang.jpg",
+			Category:  models.GalleryRestaurant,
+			Featured:  true,
+			SortOrder: 1,
+		},
+		{Title: "Phở Bò Tái đặc trưng", ImageURL: "/images/gallery/pho-bo-tai-dac-trung.jpg", Category: models.GalleryFood, Featured: true, SortOrder: 2},
+		{Title: "Bếp mở hiện đại", ImageURL: "/images/gallery/bep-mo-hien-dai.jpg", Category: models.GalleryRestaurant, Featured: false, SortOrder: 3},
+		{Title: "Tô phở đặc biệt", ImageURL: "/images/gallery/to-pho-dac-biet.jpg", Category: models.GalleryFood, Featured: true, SortOrder: 4},
+		{Title: "Sự kiện khai trương", ImageURL: "/images/gallery/su-kien-khai-truong.jpg", Category: models.GalleryEvent, Featured: false, SortOrder: 5},
+		{Title: "Góc chụp ảnh", ImageURL: "/images/gallery/goc-chup-anh.jpg", Category: models.GalleryRestaurant, Featured: false, SortOrder: 6},
 	}
 	config.DB.Create(&galleries)
 
