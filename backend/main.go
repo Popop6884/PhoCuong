@@ -12,12 +12,11 @@ import (
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	"github.com/joho/godotenv"
 	"golang.org/x/crypto/bcrypt"
 )
 
 func main() {
-	godotenv.Load()
+	config.LoadConfig()
 
 	config.ConnectDatabase()
 	autoMigrate()
@@ -107,24 +106,15 @@ func main() {
 		r.Static("/assets", "./static/assets")
 	}
 
-	// Phục vụ thư mục dữ liệu ngoài PhoCuongData
-	dataDir := os.Getenv("DATA_DIR")
-	if dataDir == "" {
-		dataDir = "D:/PhoCuongData" // Mặc định tìm thư mục ngang hàng
-	}
-	r.Static("/uploads", dataDir)
-
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = "8080"
-	}
+	// Phục vụ thư mục dữ liệu ngoài PhoCuongData lấy từ config
+	r.Static("/uploads", config.AppConfig.DataDir)
 
 	r.GET("/health", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{"status": "ok", "service": "Phở Cường API"})
 	})
 
-	log.Printf("Server running on port %s", port)
-	r.Run(":" + port)
+	log.Printf("Server running on port %s", config.AppConfig.Port)
+	r.Run(":" + config.AppConfig.Port)
 }
 
 func autoMigrate() {
