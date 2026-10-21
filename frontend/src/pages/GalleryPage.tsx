@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { X } from 'lucide-react'
 import { galleryApi } from '../api/client'
+import { getImageUrl } from '../utils/image'
 
 const categories = [
   { value: '', label: 'Tất cả' },
@@ -59,7 +60,7 @@ export default function GalleryPage() {
                 onClick={() => setSelected(item)}
               >
                 <img
-                  src={item.image_url}
+                  src={getImageUrl(item.image_url)}
                   alt={item.title}
                   className="w-full object-cover group-hover:scale-105 transition-transform duration-500"
                 />
@@ -87,7 +88,7 @@ export default function GalleryPage() {
             <X size={32} />
           </button>
           <div className="max-w-4xl max-h-[90vh] overflow-hidden" onClick={(e) => e.stopPropagation()}>
-            <img src={selected.image_url} alt={selected.title} className="max-w-full max-h-[85vh] object-contain rounded-lg" />
+            <img src={getImageUrl(selected.image_url)} alt={selected.title} className="max-w-full max-h-[85vh] object-contain rounded-lg" />
             {selected.title && (
               <div className="text-center text-brand-gold mt-3 font-serif text-lg">{selected.title}</div>
             )}

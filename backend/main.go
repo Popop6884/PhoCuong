@@ -107,6 +107,13 @@ func main() {
 		r.Static("/assets", "./static/assets")
 	}
 
+	// Phục vụ thư mục dữ liệu ngoài PhoCuongData
+	dataDir := os.Getenv("DATA_DIR")
+	if dataDir == "" {
+		dataDir = "D:/PhoCuongData" // Mặc định tìm thư mục ngang hàng
+	}
+	r.Static("/uploads", dataDir)
+
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8080"
@@ -166,18 +173,12 @@ func seedData() {
 	config.DB.Create(&menuItems)
 
 	galleries := []models.Gallery{
-		{
-			Title:     "Không gian nhà hàng",
-			ImageURL:  "/images/gallery/khong-gian-nha-hang.jpg",
-			Category:  models.GalleryRestaurant,
-			Featured:  true,
-			SortOrder: 1,
-		},
-		{Title: "Phở Bò Tái đặc trưng", ImageURL: "/images/gallery/pho-bo-tai-dac-trung.jpg", Category: models.GalleryFood, Featured: true, SortOrder: 2},
-		{Title: "Bếp mở hiện đại", ImageURL: "/images/gallery/bep-mo-hien-dai.jpg", Category: models.GalleryRestaurant, Featured: false, SortOrder: 3},
-		{Title: "Tô phở đặc biệt", ImageURL: "/images/gallery/to-pho-dac-biet.jpg", Category: models.GalleryFood, Featured: true, SortOrder: 4},
-		{Title: "Sự kiện khai trương", ImageURL: "/images/gallery/su-kien-khai-truong.jpg", Category: models.GalleryEvent, Featured: false, SortOrder: 5},
-		{Title: "Góc chụp ảnh", ImageURL: "/images/gallery/goc-chup-anh.jpg", Category: models.GalleryRestaurant, Featured: false, SortOrder: 6},
+		{Title: "Không gian nhà hàng", ImageURL: "gallery/khong-gian-nha-hang.jpg", Category: models.GalleryRestaurant, Featured: true, SortOrder: 1},
+		{Title: "Phở Bò Tái đặc trưng", ImageURL: "gallery/pho-bo-tai-dac-trung.jpg", Category: models.GalleryFood, Featured: true, SortOrder: 2},
+		{Title: "Bếp mở hiện đại", ImageURL: "gallery/bep-mo-hien-dai.jpg", Category: models.GalleryRestaurant, Featured: false, SortOrder: 3},
+		{Title: "Tô phở đặc biệt", ImageURL: "gallery/to-pho-dac-biet.jpg", Category: models.GalleryFood, Featured: true, SortOrder: 4},
+		{Title: "Sự kiện khai trương", ImageURL: "gallery/su-kien-khai-truong.jpg", Category: models.GalleryEvent, Featured: false, SortOrder: 5},
+		{Title: "Góc chụp ảnh", ImageURL: "gallery/goc-chup-anh.jpg", Category: models.GalleryRestaurant, Featured: false, SortOrder: 6},
 	}
 	config.DB.Create(&galleries)
 
