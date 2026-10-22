@@ -14,7 +14,7 @@ export default function Navbar() {
     { href: '/', label: 'Trang chủ' },
     { href: '/menu', label: 'Thực đơn' },
     { href: '/gallery', label: 'Hình ảnh' },
-    { href: '/booking', label: 'Đặt bàn' },
+    ...(user?.role === 'staff' ? [] : [{ href: '/booking', label: 'Đặt bàn' }]),
   ]
 
   const isActive = (href: string) =>
