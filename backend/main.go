@@ -12,12 +12,11 @@ import (
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	"github.com/joho/godotenv"
 	"golang.org/x/crypto/bcrypt"
 )
 
 func main() {
-	godotenv.Load()
+	config.LoadConfig()
 
 	config.ConnectDatabase()
 	autoMigrate()
@@ -107,17 +106,15 @@ func main() {
 		r.Static("/assets", "./static/assets")
 	}
 
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = "8080"
-	}
+	// Phục vụ thư mục dữ liệu ngoài PhoCuongData lấy từ config
+	r.Static("/uploads", config.AppConfig.DataDir)
 
 	r.GET("/health", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{"status": "ok", "service": "Phở Cường API"})
 	})
 
-	log.Printf("Server running on port %s", port)
-	r.Run(":" + port)
+	log.Printf("Server running on port %s", config.AppConfig.Port)
+	r.Run(":" + config.AppConfig.Port)
 }
 
 func autoMigrate() {
@@ -164,22 +161,6 @@ func seedData() {
 		{Name: "Thịt Thêm", Description: "Thêm thịt bò vào phở", Price: 25000, Category: models.CategoryTopping, Available: true},
 	}
 	config.DB.Create(&menuItems)
-
-	galleries := []models.Gallery{
-		{
-			Title:     "Không gian nhà hàng",
-			ImageURL:  "/images/gallery/khong-gian-nha-hang.jpg",
-			Category:  models.GalleryRestaurant,
-			Featured:  true,
-			SortOrder: 1,
-		},
-		{Title: "Phở Bò Tái đặc trưng", ImageURL: "/images/gallery/pho-bo-tai-dac-trung.jpg", Category: models.GalleryFood, Featured: true, SortOrder: 2},
-		{Title: "Bếp mở hiện đại", ImageURL: "/images/gallery/bep-mo-hien-dai.jpg", Category: models.GalleryRestaurant, Featured: false, SortOrder: 3},
-		{Title: "Tô phở đặc biệt", ImageURL: "/images/gallery/to-pho-dac-biet.jpg", Category: models.GalleryFood, Featured: true, SortOrder: 4},
-		{Title: "Sự kiện khai trương", ImageURL: "/images/gallery/su-kien-khai-truong.jpg", Category: models.GalleryEvent, Featured: false, SortOrder: 5},
-		{Title: "Góc chụp ảnh", ImageURL: "/images/gallery/goc-chup-anh.jpg", Category: models.GalleryRestaurant, Featured: false, SortOrder: 6},
-	}
-	config.DB.Create(&galleries)
 
 	settings := []models.Setting{
 		{Key: "restaurant_name", Value: "Phở Cường"},

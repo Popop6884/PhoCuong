@@ -43,6 +43,16 @@ function Layout({ children }: { children: React.ReactNode }) {
   )
 }
 
+function BookingAccessRoute() {
+  const { user } = useAuth()
+
+  if (user?.role === 'staff') {
+    return <Navigate to="/staff" replace />
+  }
+
+  return <Layout><BookingPage /></Layout>
+}
+
 function DashboardLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen flex flex-col">
@@ -61,7 +71,7 @@ export default function App() {
           <Route path="/" element={<Layout><Home /></Layout>} />
           <Route path="/menu" element={<Layout><MenuPage /></Layout>} />
           <Route path="/gallery" element={<Layout><GalleryPage /></Layout>} />
-          <Route path="/booking" element={<Layout><BookingPage /></Layout>} />
+          <Route path="/booking" element={<BookingAccessRoute />} />
           <Route path="/login" element={<Layout><Login /></Layout>} />
           <Route path="/register" element={<Layout><Register /></Layout>} />
 
