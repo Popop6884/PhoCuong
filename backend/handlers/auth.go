@@ -4,13 +4,15 @@ import (
 	"net/http"
 	"time"
 
+	"phocuong/config"
+	"phocuong/middleware"
+	"phocuong/models"
+	"phocuong/services"
+
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
-	"phocuong/config"
-	"phocuong/middleware"
-	"phocuong/models"
 )
 
 type RegisterInput struct {
@@ -18,6 +20,7 @@ type RegisterInput struct {
 	Email    string `json:"email" binding:"required,email"`
 	Phone    string `json:"phone"`
 	Password string `json:"password" binding:"required,min=6"`
+	OTP      string `json:"otp" binding:"required,len=6"`
 }
 
 type LoginInput struct {
@@ -25,10 +28,111 @@ type LoginInput struct {
 	Password string `json:"password" binding:"required"`
 }
 
+type RequestOTPInput struct {
+	Email string `json:"email" binding:"required,email"`
+}
+
+type VerifyOTPInput struct {
+	Email string `json:"email" binding:"required,email"`
+	Code  string `json:"code" binding:"required,len=6"`
+}
+
+func RequestOTP(c *gin.Context) {
+	var input RequestOTPInput
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Kiểm tra email đã tồn tại chưa
+	var existing models.User
+	if err := config.DB.Where("email = ?", input.Email).First(&existing).Error; err == nil {
+		c.JSON(http.StatusConflict, gin.H{"error": "Email đã được sử dụng"})
+		return
+	}
+
+	otpCode := services.GenerateOTPCode()
+	otpHash, err := services.HashOTP(otpCode)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Không tạo được OTP"})
+		return
+	}
+
+	// Xóa OTP cũ liên quan tới email này
+	config.DB.Where("email = ? AND purpose = ?", input.Email, "register").Delete(&models.EmailOTP{})
+
+	otpRecord := models.EmailOTP{
+		Email:     input.Email,
+		CodeHash:  otpHash,
+		Purpose:   "register",
+		Used:      false,
+		ExpiresAt: services.OTPExpiryInMinutes(5),
+	}
+
+	if err := config.DB.Create(&otpRecord).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Không lưu được OTP"})
+		return
+	}
+
+	if err := services.SendOTPEmail(input.Email, otpCode); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Không gửi được email OTP"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "OTP đã được gửi đến email",
+	})
+}
+
+func VerifyOTP(c *gin.Context) {
+	var input VerifyOTPInput
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	var otpRecord models.EmailOTP
+	if err := config.DB.Where("email = ? AND purpose = ? AND used = false", input.Email, "register").
+		Order("created_at DESC").
+		First(&otpRecord).Error; err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "OTP không hợp lệ hoặc đã hết hạn"})
+		return
+	}
+
+	if time.Now().After(otpRecord.ExpiresAt) {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "OTP đã hết hạn"})
+		return
+	}
+
+	if !services.VerifyOTPHash(input.Code, otpRecord.CodeHash) {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "OTP không đúng"})
+		return
+	}
+
+	config.DB.Model(&otpRecord).Update("used", true)
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "OTP hợp lệ",
+	})
+}
+
 func Register(c *gin.Context) {
 	var input RegisterInput
 	if err := c.ShouldBindJSON(&input); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	var otpRecord models.EmailOTP
+	if err := config.DB.Where("email = ? AND purpose = ? AND used = true", input.Email, "register").
+		Order("created_at DESC").
+		First(&otpRecord).Error; err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Bạn chưa xác thực email"})
+		return
+	}
+
+	if !services.VerifyOTPHash(input.OTP, otpRecord.CodeHash) {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "OTP không hợp lệ"})
 		return
 	}
 
@@ -151,15 +255,27 @@ func ChangePassword(c *gin.Context) {
 	}
 
 	var user models.User
-	config.DB.First(&user, userID)
+	if err := config.DB.First(&user, userID).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Không tìm thấy người dùng"})
+		return
+	}
 
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(input.OldPassword)); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Mật khẩu cũ không đúng"})
 		return
 	}
 
-	hashed, _ := bcrypt.GenerateFromPassword([]byte(input.NewPassword), bcrypt.DefaultCost)
-	config.DB.Model(&user).Update("password", string(hashed))
+	hashed, err := bcrypt.GenerateFromPassword([]byte(input.NewPassword), bcrypt.DefaultCost)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Lỗi server"})
+		return
+	}
+
+	if err := config.DB.Model(&user).Update("password", string(hashed)).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Không thể đổi mật khẩu"})
+		return
+	}
+
 	c.JSON(http.StatusOK, gin.H{"message": "Đổi mật khẩu thành công"})
 }
 

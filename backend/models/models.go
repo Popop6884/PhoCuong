@@ -130,6 +130,15 @@ type Review struct {
 	Approved   bool   `gorm:"default:false" json:"approved"`
 }
 
+type EmailOTP struct {
+	gorm.Model
+	Email     string    `gorm:"not null;index" json:"email"`
+	CodeHash  string    `gorm:"not null" json:"-"`
+	Purpose   string    `gorm:"not null" json:"purpose"`
+	Used      bool      `gorm:"default:false" json:"used"`
+	ExpiresAt time.Time `gorm:"not null" json:"expires_at"`
+}
+
 type Setting struct {
 	gorm.Model
 	Key   string `gorm:"type:varchar(191);uniqueIndex;not null" json:"key"`

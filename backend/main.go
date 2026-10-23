@@ -36,6 +36,8 @@ func main() {
 	{
 		auth := api.Group("/auth")
 		{
+			auth.POST("/request-otp", handlers.RequestOTP)
+			auth.POST("/verify-otp", handlers.VerifyOTP)
 			auth.POST("/register", handlers.Register)
 			auth.POST("/login", handlers.Login)
 		}
@@ -126,6 +128,7 @@ func autoMigrate() {
 		&models.OrderItem{},
 		&models.Gallery{},
 		&models.Review{},
+		&models.EmailOTP{},
 		&models.Setting{},
 	)
 }
